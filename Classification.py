@@ -27,7 +27,6 @@ class Classification(object):
             return (False,"please input valid image format", "png,jpg,jpeg,gif")
         try:
 
-            starttime = time.time()
             image_size = resnet_v1.resnet_v1.default_image_size
             with tf.Graph().as_default():
                 #if image is from local then read file firstly

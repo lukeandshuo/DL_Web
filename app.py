@@ -130,8 +130,8 @@ def start_from_terminal(app):
     # Initialize classifier + warm start by forward for allocation
     app.clf = Classification()
     #warm up
-    # for i in range(3):
-    #     app.clf.classify_image("test.jpg",'jpg')
+    for i in range(2):
+        app.clf.classify_image("test.jpg",'jpg')
 
     if opts.debug:
         app.run(debug=True, host='0.0.0.0', port=opts.port)
