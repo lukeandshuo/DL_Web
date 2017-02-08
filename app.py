@@ -119,7 +119,7 @@ def start_from_terminal(app):
     parser.add_option(
         '-p', '--port',
         help="which port to serve content on",
-        type='int', default=3128)
+        type='int', default=5000)
     parser.add_option(
         '-g', '--gpu',
         help="use gpu mode",

@@ -55,10 +55,11 @@ class Classification(object):
                 # print "2"
                 with tf.Session() as sess:
                     init_fn(sess)
+                    starttime = time.time()
                     np_image, probabilities = sess.run([image, probabilities])
+                    endtime = time.time()
                     probabilities = probabilities[0,0,0,0:]
                     sorted_inds = np.argsort(probabilities)[::-1]
-            endtime = time.time()
             indices = sorted_inds[:5]
             preditions = synset[indices]
             meta = [(p,'%.5f'% probabilities[i]) for i, p in zip(indices,preditions)]
