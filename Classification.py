@@ -16,7 +16,7 @@ from preprocessing import vgg_preprocessing
 
 class Classification(object):
 
-    def __init__(self,checkpoints_dir = '/home/shuoliu/Research/TF/checkpoints/'):
+    def __init__(self,checkpoints_dir = 'checkpoints/'):
         self.checkpoints_dir = checkpoints_dir
         self.valid_ext = ['png','jpg','jpeg','gif']
 
