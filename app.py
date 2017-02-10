@@ -15,6 +15,8 @@ import cStringIO as StringIO
 import urllib
 import exifutil
 from Classification import Classification
+from multiprocessing import Process,Manager
+
 import tensorflow as tf
 
 REPO_DIRNAME = os.path.dirname(__file__)
@@ -49,7 +51,14 @@ def classify_url():
         )
 
     logging.info('Image: %s', imageurl)
-    result = app.clf.classify_image(string_buffer,ext)
+    # using multiprocessing to avoid out of memory on GPU
+    with Manager() as manager:
+        ret = manager.dict()
+        p = Process(target=app.clf.classify_image,args=(string_buffer,ext,ret))
+        p.start()
+        p.join()
+        result = ret['result']
+    print result
     return flask.render_template(
         'index.html', has_result=True, result=result, imagesrc=imageurl)
 
@@ -73,8 +82,15 @@ def classify_upload():
             'index.html', has_result=True,
             result=(False, 'Cannot open uploaded image.')
         )
+    # using multiprocessing to avoid out of memory on GPU
+    with Manager() as manager:
+        ret = manager.dict()
+        p = Process(target=app.clf.classify_image,args=(string_buffer,ext,ret))
+        p.start()
+        p.join()
+        result = ret['result']
+    print result
 
-    result = app.clf.classify_image(string_buffer,ext)
     return flask.render_template(
         'index.html', has_result=True, result=result,
         imagesrc=embed_image_html(filename) # TODO
@@ -126,12 +142,17 @@ def start_from_terminal(app):
         action='store_true', default=False)
 
     opts, args = parser.parse_args()
-
-    # Initialize classifier + warm start by forward for allocation
     app.clf = Classification()
+    # Initialize classifier + warm start by forward for allocation
+    with Manager() as manager:
+        ret = manager.dict()
+        p = Process(target=app.clf.classify_image,args=("test.jpg","jpg",ret))
+        p.start()
+        p.join()
+        print ret
     #warm up
-    for i in range(2):
-        app.clf.classify_image("test.jpg",'jpg')
+    # for i in range(2):
+    #     app.clf.classify_image("test.jpg",'jpg')
 
     if opts.debug:
         app.run(debug=True, host='0.0.0.0', port=opts.port)
