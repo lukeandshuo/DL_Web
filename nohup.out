@@ -173,3 +173,61 @@ INFO:tornado.access:304 GET /static/img/intro-bg.jpg (206.87.50.167) 0.64ms
 WARNING:tornado.access:404 GET /vendor/jquery/jquery.js (206.87.50.167) 0.40ms
 WARNING:tornado.access:404 GET /vendor/bootstrap/js/bootstrap.min.js (206.87.50.167) 0.40ms
 WARNING:tornado.access:404 GET /js/grayscale.min.js (206.87.50.167) 0.42ms
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcublas.so locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcudnn.so locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcufft.so locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcuda.so.1 locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcurand.so locally
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:885] Found device 0 with properties: 
+name: Tesla K80
+major: 3 minor: 7 memoryClockRate (GHz) 0.8235
+pciBusID 8317:00:00.0
+Total memory: 11.17GiB
+Free memory: 11.11GiB
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:906] DMA: 0 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:916] 0:   Y 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K80, pci bus id: 8317:00:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K80, pci bus id: 8317:00:00.0)
+INFO:tornado.access:200 GET / (206.87.50.167) 12.44ms
+WARNING:tornado.access:404 GET /vendor/jquery/jquery.js (206.87.50.167) 4.93ms
+WARNING:tornado.access:404 GET /vendor/bootstrap/js/bootstrap.min.js (206.87.50.167) 0.41ms
+WARNING:tornado.access:404 GET /js/grayscale.min.js (206.87.50.167) 0.40ms
+WARNING:tornado.access:404 GET /vendor/bootstrap/js/bootstrap.min.js (206.87.50.167) 0.41ms
+WARNING:tornado.access:404 GET /js/grayscale.min.js (206.87.50.167) 0.41ms
+INFO:root:Image: http://i.telegraph.co.uk/multimedia/archive/02351/cross-eyed-cat_2351472k.jpg
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K80, pci bus id: 8317:00:00.0)
+INFO:tornado.access:200 GET /classify_url?imageurl=http%3A%2F%2Fi.telegraph.co.uk%2Fmultimedia%2Farchive%2F02351%2Fcross-eyed-cat_2351472k.jpg (206.87.50.167) 5426.10ms
+WARNING:tornado.access:404 GET /vendor/jquery/jquery.js (206.87.50.167) 0.51ms
+WARNING:tornado.access:404 GET /vendor/bootstrap/js/bootstrap.min.js (206.87.50.167) 0.42ms
+WARNING:tornado.access:404 GET /js/grayscale.min.js (206.87.50.167) 0.41ms
+INFO:root:Image: http://mercuryanimal.com/wp-content/uploads/2016/09/cute-3.jpg
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K80, pci bus id: 8317:00:00.0)
+INFO:tornado.access:200 GET /classify_url?imageurl=http%3A%2F%2Fmercuryanimal.com%2Fwp-content%2Fuploads%2F2016%2F09%2Fcute-3.jpg (206.87.50.167) 5506.89ms
+WARNING:tornado.access:404 GET /vendor/jquery/jquery.js (206.87.50.167) 0.48ms
+WARNING:tornado.access:404 GET /vendor/bootstrap/js/bootstrap.min.js (206.87.50.167) 0.40ms
+WARNING:tornado.access:404 GET /js/grayscale.min.js (206.87.50.167) 0.41ms
+INFO:root:Image: https://static.pexels.com/photos/45164/mare-animal-nature-ride-45164.jpeg
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K80, pci bus id: 8317:00:00.0)
+Not a JPEG file: starts with 0x3c 0x21
+Not a JPEG file: starts with 0x3c 0x21
+W tensorflow/core/framework/op_kernel.cc:975] Invalid argument: Invalid JPEG data, size 3293
+	 [[Node: DecodeJpeg = DecodeJpeg[acceptable_fraction=1, channels=3, fancy_upscaling=true, ratio=1, try_recover_truncated=false, _device="/job:localhost/replica:0/task:0/cpu:0"](DecodeJpeg/contents)]]
+W tensorflow/core/framework/op_kernel.cc:975] Invalid argument: Invalid JPEG data, size 3293
+	 [[Node: DecodeJpeg = DecodeJpeg[acceptable_fraction=1, channels=3, fancy_upscaling=true, ratio=1, try_recover_truncated=false, _device="/job:localhost/replica:0/task:0/cpu:0"](DecodeJpeg/contents)]]
+W tensorflow/core/framework/op_kernel.cc:975] Invalid argument: Invalid JPEG data, size 3293
+	 [[Node: DecodeJpeg = DecodeJpeg[acceptable_fraction=1, channels=3, fancy_upscaling=true, ratio=1, try_recover_truncated=false, _device="/job:localhost/replica:0/task:0/cpu:0"](DecodeJpeg/contents)]]
+W tensorflow/core/framework/op_kernel.cc:975] Invalid argument: Invalid JPEG data, size 3293
+	 [[Node: DecodeJpeg = DecodeJpeg[acceptable_fraction=1, channels=3, fancy_upscaling=true, ratio=1, try_recover_truncated=false, _device="/job:localhost/replica:0/task:0/cpu:0"](DecodeJpeg/contents)]]
+INFO:tornado.access:200 GET /classify_url?imageurl=https%3A%2F%2Fstatic.pexels.com%2Fphotos%2F45164%2Fmare-animal-nature-ride-45164.jpeg (206.87.50.167) 5398.40ms
+WARNING:tornado.access:404 GET /vendor/jquery/jquery.js (206.87.50.167) 0.51ms
+WARNING:tornado.access:404 GET /vendor/bootstrap/js/bootstrap.min.js (206.87.50.167) 0.40ms
+WARNING:tornado.access:404 GET /js/grayscale.min.js (206.87.50.167) 0.41ms
+WARNING:tornado.access:404 GET /vendor/jquery/jquery.js (206.87.50.167) 0.50ms
+WARNING:tornado.access:404 GET /vendor/bootstrap/js/bootstrap.min.js (206.87.50.167) 0.41ms
+WARNING:tornado.access:404 GET /js/grayscale.min.js (206.87.50.167) 0.40ms
+INFO:root:Image: http://r.ddmcdn.com/w_830/s_f/o_1/cx_98/cy_0/cw_640/ch_360/APL/uploads/2015/07/cecil-AP463227356214-1000x400.jpg
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K80, pci bus id: 8317:00:00.0)
+INFO:tornado.access:200 GET /classify_url?imageurl=http%3A%2F%2Fr.ddmcdn.com%2Fw_830%2Fs_f%2Fo_1%2Fcx_98%2Fcy_0%2Fcw_640%2Fch_360%2FAPL%2Fuploads%2F2015%2F07%2Fcecil-AP463227356214-1000x400.jpg (206.87.50.167) 5475.19ms
+WARNING:tornado.access:404 GET /vendor/jquery/jquery.js (206.87.50.167) 0.68ms
+WARNING:tornado.access:404 GET /vendor/bootstrap/js/bootstrap.min.js (206.87.50.167) 0.41ms
+WARNING:tornado.access:404 GET /js/grayscale.min.js (206.87.50.167) 0.41ms
