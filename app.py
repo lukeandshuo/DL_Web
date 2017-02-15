@@ -16,8 +16,14 @@ import cv2
 from Classification import Classification
 from multiprocessing import Process,Manager
 import tensorflow as tf
-sys.path.append("/home/shuoliu/TF/FaceVerification/demos")
+#add face verification path
+sys.path.append("/home/shuoliu/Research/TF/FaceVerification/openface/demos")
 from verification import FaceVerification
+
+#add object detection path
+sys.path.append("/home/shuoliu/Research/TF/ObjectDetection/")
+from ObjectDetection import ObjectDetection
+sys.path.append("")
 REPO_DIRNAME = os.path.dirname(__file__)
 UPLOAD_FOLDER = os.path.join(REPO_DIRNAME,'tmp/caffe_demos_uploads')
 if not os.path.exists(UPLOAD_FOLDER):
@@ -148,6 +154,44 @@ def face_url():
         'index.html', has_result=True, result=result, drawImg1=embed_cv_image_html(drawImg1),drawImg2=embed_cv_image_html(drawImg2), section="FV")
 
 
+@app.route('/od_url', methods=['GET'])
+def od_url():
+    imgurl = flask.request.args.get('image')
+    print imgurl
+    try:
+        # string_buffer =urllib.urlopen(imgurl1).read()
+        # ext = os.path.splitext(imgurl1)[1].strip('.')
+        url_buffer1 = urllib.urlopen(imgurl).read()
+        img = url_to_img(url_buffer1)
+        if img == None:
+            raise ValueError("error image")
+        filename_ = str(datetime.datetime.now()).replace(' ', '_') + "img.png"
+        filename = os.path.join(UPLOAD_FOLDER, filename_)
+        cv2.imwrite(filename,img)
+
+    except Exception as err:
+        # For any exception we encounter in reading the image, we will just
+        # not continue.
+        logging.info('URL Image open error: %s', err)
+        return flask.render_template(
+            'index.html', has_result=True,
+            result=(False, 'Cannot open image from URL.')
+            , section="OD"
+        )
+
+    logging.info('Image: %s', imgurl)
+    # using multiprocessing to avoid out of memory on GPU
+    with Manager() as manager:
+        ret = manager.dict()
+        p = Process(target=app.od.detect,args=(filename,ret))
+        p.start()
+        p.join()
+        result = ret['result']
+        drawImg = ret['drawImg']
+    print result
+    return flask.render_template(
+        'index.html', has_result=True, result=result, drawImg=embed_cv_image_html(drawImg), section="OD")
+
 def url_to_img(url_buffer):
     image = np.asarray(bytearray(url_buffer),dtype="uint8")
     image = cv2.imdecode(image,cv2.IMREAD_COLOR)
@@ -209,6 +253,10 @@ def start_from_terminal(app):
     opts, args = parser.parse_args()
     app.clf = Classification()
     app.face = FaceVerification()
+    app.od = ObjectDetection()
+
+    # cv2.imshow("luke",img)
+    # cv2.waitKey(0)
     # img1 = "luke1.jpg"
     # img2 = "luke2.jpg"
     # Same,drawImg1,drawImg2=app.face.verification(img1,img2)
@@ -220,12 +268,12 @@ def start_from_terminal(app):
     # cv2.imshow("face",drawImg)
     # cv2.waitKey(3000)
     # Initialize classifier + warm start by forward for allocation
-    with Manager() as manager:
-        ret = manager.dict()
-        p = Process(target=app.clf.classify_image,args=("test.jpg","jpg",ret))
-        p.start()
-        p.join()
-        print ret
+    # with Manager() as manager:
+    #     ret = manager.dict()
+    #     p = Process(target=app.clf.classify_image,args=("test.jpg","jpg",ret))
+    #     p.start()
+    #     p.join()
+    #     print ret
     #warm up
     # for i in range(2):
     #     app.clf.classify_image("test.jpg",'jpg')
