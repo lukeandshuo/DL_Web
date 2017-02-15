@@ -16,7 +16,7 @@ import cv2
 from Classification import Classification
 from multiprocessing import Process,Manager
 import tensorflow as tf
-sys.path.append("/home/shuoliu/Research/TF/tf-face-verification/openface/demos")
+sys.path.append("/home/shuoliu/TF/FaceVerification/demos")
 from verification import FaceVerification
 REPO_DIRNAME = os.path.dirname(__file__)
 UPLOAD_FOLDER = os.path.join(REPO_DIRNAME,'tmp/caffe_demos_uploads')
