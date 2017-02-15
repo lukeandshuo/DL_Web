@@ -19,16 +19,19 @@ class Classification(object):
     def __init__(self,checkpoints_dir = 'checkpoints/'):
         self.checkpoints_dir = checkpoints_dir
         self.valid_ext = ['png','jpg','jpeg','gif']
-
-    def classify_image(self,image_string,ext='png'):
+        self.g = tf.Graph()
+    def _compute(self):
+        pass
+    def classify_image(self,image_string,ext='png',ret = None):
 
         if ext not in self.valid_ext:
             # print "wrong image formatg"
-            return (False,"please input valid image format", "png,jpg,jpeg,gif")
+            ret['result'] = (False,"please input valid image format", "png,jpg,jpeg,gif")
+            return ret['result']
         try:
 
             image_size = resnet_v1.resnet_v1.default_image_size
-            with tf.Graph().as_default():
+            with self.g.as_default():
                 #if image is from local then read file firstly
                 if os.path.splitext(image_string)[1].strip(".") in self.valid_ext:
                     # print "image from local"
@@ -52,6 +55,7 @@ class Classification(object):
                     os.path.join(self.checkpoints_dir, 'resnet_v1_50.ckpt'),
                     slim.get_model_variables())
                 # print "2"
+            with self.g.as_default():
                 with tf.Session() as sess:
                     init_fn(sess)
                     starttime = time.time()
@@ -62,10 +66,12 @@ class Classification(object):
             indices = sorted_inds[:5]
             preditions = synset[indices]
             meta = [(p,'%.5f'% probabilities[i]) for i, p in zip(indices,preditions)]
-            return (True,meta,'%.3f' % (endtime-starttime))
+            ret['result']=(True,meta,'%.3f' % (endtime-starttime))
+            return ret['result']
         except Exception as err:
             # print "error"
-            return (False,"someting went wrong when classifying the image,", "Maybe try another one?")
+            ret['result'] = (False,"someting went wrong when classifying the image,", "Maybe try another one?")
+            return ret['result']
 
 if __name__ =='__main__':
     url ="https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png"
@@ -76,4 +82,4 @@ if __name__ =='__main__':
     # if re:
     #     print "time:",t
     #     for i in meta:
-    #         print i
+    #         print in
