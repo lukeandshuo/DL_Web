@@ -106,10 +106,18 @@ def face_url():
     try:
         # string_buffer =urllib.urlopen(imgurl1).read()
         # ext = os.path.splitext(imgurl1)[1].strip('.')
-        img1 = url_to_img(imgurl1)
+        url_buffer1 = urllib.urlopen(imgurl1).read()
+        img1 = url_to_img(url_buffer1)
+        print img1
+        if img1 == None:
+            raise ValueError("error image")
         filename1_ = str(datetime.datetime.now()).replace(' ', '_') + "img1.png"
         filename1 = os.path.join(UPLOAD_FOLDER, filename1_)
-        img2 = url_to_img(imgurl2)
+
+        url_buffer2 = urllib.urlopen(imgurl2).read()
+        img2 = url_to_img(url_buffer2)
+        if img2 == None:
+            raise ValueError("error image")
         filename2_ = str(datetime.datetime.now()).replace(' ', '_') + "img2.png"
         filename2 = os.path.join(UPLOAD_FOLDER, filename2_)
 
@@ -141,9 +149,8 @@ def face_url():
         'index.html', has_result=True, result=result, drawImg1=embed_cv_image_html(drawImg1),drawImg2=embed_cv_image_html(drawImg2), section="FV")
 
 
-def url_to_img(url):
-    resp = urllib.urlopen(url)
-    image = np.asarray(bytearray(resp.read()),dtype="uint8")
+def url_to_img(url_buffer):
+    image = np.asarray(bytearray(url_buffer),dtype="uint8")
     image = cv2.imdecode(image,cv2.IMREAD_COLOR)
     return image
 
