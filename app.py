@@ -108,7 +108,6 @@ def face_url():
         # ext = os.path.splitext(imgurl1)[1].strip('.')
         url_buffer1 = urllib.urlopen(imgurl1).read()
         img1 = url_to_img(url_buffer1)
-        print img1
         if img1 == None:
             raise ValueError("error image")
         filename1_ = str(datetime.datetime.now()).replace(' ', '_') + "img1.png"
