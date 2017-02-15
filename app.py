@@ -1,6 +1,4 @@
 import os
-import time
-import cPickle
 import datetime
 import logging
 import flask
@@ -9,16 +7,17 @@ import optparse
 import tornado.wsgi
 import tornado.httpserver
 import numpy as np
-import pandas as pd
 import PIL.Image as Image
 import cStringIO as StringIO
 import urllib
 import exifutil
+import sys
+import cv2
 from Classification import Classification
 from multiprocessing import Process,Manager
-
 import tensorflow as tf
-
+sys.path.append("/home/shuoliu/Research/TF/tf-face-verification/openface/demos")
+from verification import FaceVerification
 REPO_DIRNAME = os.path.dirname(__file__)
 UPLOAD_FOLDER = os.path.join(REPO_DIRNAME,'tmp/caffe_demos_uploads')
 if not os.path.exists(UPLOAD_FOLDER):
@@ -48,6 +47,7 @@ def classify_url():
         return flask.render_template(
             'index.html', has_result=True,
             result=(False, 'Cannot open image from URL.')
+            ,section="Classification"
         )
 
     logging.info('Image: %s', imageurl)
@@ -58,44 +58,103 @@ def classify_url():
         p.start()
         p.join()
         result = ret['result']
-    print result
+    print "url",result
     return flask.render_template(
-        'index.html', has_result=True, result=result, imagesrc=imageurl)
+        'index.html', has_result=True, result=result, imagesrc=imageurl, section="Classification")
+
+#
+# @app.route('/classify_upload', methods=['POST'])
+# def classify_upload():
+#     try:
+#         # We will save the file to disk for possible data collection.
+#         imagefile = flask.request.files['imagefile']
+#         filename_ = str(datetime.datetime.now()).replace(' ', '_') + \
+#             werkzeug.secure_filename(imagefile.filename)
+#         filename = os.path.join(UPLOAD_FOLDER, filename_)
+#         imagefile.save(filename)
+#         logging.info('Saving to %s.', filename)
+#         string_buffer = filename
+#         ext = os.path.splitext(filename)[1].strip('.')
+#
+#     except Exception as err:
+#         logging.info('Uploaded image open error: %s', err)
+#         return flask.render_template(
+#             'index.html', has_result=True,
+#             result=(False, 'Cannot open uploaded image.')
+#         )
+#     # using multiprocessing to avoid out of memory on GPU
+#     with Manager() as manager:
+#         ret = manager.dict()
+#         p = Process(target=app.clf.classify_image,args=(string_buffer,ext,ret))
+#         p.start()
+#         p.join()
+#         result = ret['result']
+#     print result
+#
+#     return flask.render_template(
+#         'index.html', has_result=True, result=result,
+#         imagesrc=embed_image_html(filename) # TODO
+#     )
 
 
-@app.route('/classify_upload', methods=['POST'])
-def classify_upload():
+@app.route('/face_url', methods=['GET'])
+def face_url():
+    imgurl1 = flask.request.args.get('face1')
+    print imgurl1
+    imgurl2 = flask.request.args.get('face2')
+    print imgurl2
     try:
-        # We will save the file to disk for possible data collection.
-        imagefile = flask.request.files['imagefile']
-        filename_ = str(datetime.datetime.now()).replace(' ', '_') + \
-            werkzeug.secure_filename(imagefile.filename)
-        filename = os.path.join(UPLOAD_FOLDER, filename_)
-        imagefile.save(filename)
-        logging.info('Saving to %s.', filename)
-        string_buffer = filename
-        ext = os.path.splitext(filename)[1].strip('.')
+        # string_buffer =urllib.urlopen(imgurl1).read()
+        # ext = os.path.splitext(imgurl1)[1].strip('.')
+        img1 = url_to_img(imgurl1)
+        filename1_ = str(datetime.datetime.now()).replace(' ', '_') + "img1.png"
+        filename1 = os.path.join(UPLOAD_FOLDER, filename1_)
+        img2 = url_to_img(imgurl2)
+        filename2_ = str(datetime.datetime.now()).replace(' ', '_') + "img2.png"
+        filename2 = os.path.join(UPLOAD_FOLDER, filename2_)
+
+        cv2.imwrite(filename1,img1)
+        cv2.imwrite(filename2,img2)
 
     except Exception as err:
-        logging.info('Uploaded image open error: %s', err)
+        # For any exception we encounter in reading the image, we will just
+        # not continue.
+        logging.info('URL Image open error: %s', err)
         return flask.render_template(
             'index.html', has_result=True,
-            result=(False, 'Cannot open uploaded image.')
+            result=(False, 'Cannot open image from URL.')
+            , section="FV"
         )
+
+    logging.info('Image: %s', imgurl1)
     # using multiprocessing to avoid out of memory on GPU
     with Manager() as manager:
         ret = manager.dict()
-        p = Process(target=app.clf.classify_image,args=(string_buffer,ext,ret))
+        p = Process(target=app.face.verification,args=(filename1,filename2,ret))
         p.start()
         p.join()
         result = ret['result']
+        drawImg1 = ret['drawImg1']
+        drawImg2 = ret['drawImg2']
     print result
-
     return flask.render_template(
-        'index.html', has_result=True, result=result,
-        imagesrc=embed_image_html(filename) # TODO
-    )
+        'index.html', has_result=True, result=result, drawImg1=embed_cv_image_html(drawImg1),drawImg2=embed_cv_image_html(drawImg2), section="FV")
 
+
+def url_to_img(url):
+    resp = urllib.urlopen(url)
+    image = np.asarray(bytearray(resp.read()),dtype="uint8")
+    image = cv2.imdecode(image,cv2.IMREAD_COLOR)
+    return image
+
+def embed_cv_image_html(img):
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    image_pil = Image.fromarray(img)
+    image_pil = image_pil.resize((256, 256))
+    string_buf = StringIO.StringIO()
+    image_pil.save(string_buf, format='png')
+    data = string_buf.getvalue().encode('base64').replace('\n', '')
+    return 'data:image/png;base64,' + data
 
 def embed_image_html(imagename):
     """Creates an image embedded in HTML base64 format."""
@@ -143,6 +202,17 @@ def start_from_terminal(app):
 
     opts, args = parser.parse_args()
     app.clf = Classification()
+    app.face = FaceVerification()
+    # img1 = "luke1.jpg"
+    # img2 = "luke2.jpg"
+    # Same,drawImg1,drawImg2=app.face.verification(img1,img2)
+    # if Same:
+    #     print "same"
+    # else:
+    #     print "different"
+    # drawImg = np.concatenate((drawImg1,drawImg2),axis=1)
+    # cv2.imshow("face",drawImg)
+    # cv2.waitKey(3000)
     # Initialize classifier + warm start by forward for allocation
     with Manager() as manager:
         ret = manager.dict()
