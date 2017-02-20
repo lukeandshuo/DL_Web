@@ -98,6 +98,9 @@
                     <li>
                         <a class="page-scroll" href="#OD">Object Detection</a>
                     </li>
+                    <li>
+                        <a class="page-scroll" href="#Caption">Image Description</a>
+                    </li>
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -257,7 +260,7 @@
     </section>
 
 
-       <!-- Face Verification Section -->
+       <!-- Object Detection Section -->
     <section id="OD" class="container content-section text-center">
           <div class="row">
             <div class="col-lg-8 col-lg-offset-2">
@@ -276,7 +279,7 @@
                   {% else %}
                   <div class="row">
                   <div class="media col-md-12">
-                      <img class="img-thumbnail" width="256" height="256" src={{ drawImg }}>
+                      <img class="img-thumbnail" width="512" height= "512" src={{ drawImg }}>
                   </div>
                   </div>
                   <hr>
@@ -298,8 +301,84 @@
                       </div><!-- /input-group -->
 
                     </div>
-
                   </form>
+            </div>
+        </div>
+    </section>
+
+        <!-- Caption Section -->
+    <section id="Caption" class="container content-section text-center">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2">
+                <div class="page-header">
+            <h1>Description</h1>
+            <p>
+                Hi, AI! Can you tell me what happens in the picture?
+            </p>
+          </div>
+
+                 <div>
+                     <p><a href="caption_url?imageurl=https%3A%2F%2Fs3-us-west-1.amazonaws.com%2Fpowr%2Fdefaults%2Fimage-slider2.jpg">Click for a Quick Example</a></p>
+                 </div>
+
+                  {% if has_result %}
+                  {% if section == "Caption" %}
+                  {% if not result[0] %}
+                  <!-- we have error in the result. -->
+                  <div class="alert alert-danger">{{ result[1] }} Did you provide a valid URL or a valid image file? </div>
+                  {% else %}
+                  <div class="media">
+                    <a class="pull-left" href="#"><img class="img-thumbnail" width="192" height="192" src={{ imagesrc }}></a>
+                    <div class="media-body">
+                      <div class="bs-example bs-example-tabs">
+                        <ul  class="nav nav-tabs">
+                          <!--<li class="active"><a href="#infopred" data-toggle="tab">Maximally accurate</a></li>-->
+                            <li class="active"><a data-toggle="tab" ><b>Top3 Results</b></a></li>
+                        </ul>
+                        <div class="tab-content">
+                          <div class="tab-pane fade in active" >
+                            <ul class="list-group">
+                              {% for single_pred in result[1] %}
+                              <li class="list-group-item">
+                              <span class="badge">{{ single_pred[1] }}</span>
+                              <h4 class="list-group-item-heading">
+                                <a >{{ single_pred[0] }}</a>
+                              </h4>
+                              </li>
+                              {% endfor %}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                  <p> CNN took {{ result[2] }} seconds. </p>
+                  {% endif %}
+                  <hr>
+                  {% endif %}
+                  {% endif %}
+
+                  <form role="form" action="caption_url" method="get">
+                    <div class="form-group">
+		      <label ><p>Please input an image address:</p></label>
+                      <div class="input-group">
+                        <input type="text" class="form-control" name="imageurl"  placeholder="Provide an image URL">
+                        <span class="input-group-btn">
+                          <input class="btn btn-primary btn-large" value="Describe" type="submit"></input>
+                        </span>
+                      </div><!-- /input-group -->
+                    </div>
+                  </form>
+
+                  <!--<form id="formupload" class="form-inline" role="form" action="classify_upload" method="post" enctype="multipart/form-data">-->
+                    <!--<div class="form-group">-->
+                        <!--<label for="imagefile"><p>Or upload an image:</p></label>-->
+                        <!--<input class="btn btn-primary" type="file" name="imagefile" id="imagefile">-->
+                    <!--</div>-->
+                    <!--&lt;!&ndash;<input type="submit" class="btn btn-primary" value="Classify File" id="classifyfile"></input>&ndash;&gt;-->
+                  <!--</form>-->
+
             </div>
         </div>
     </section>

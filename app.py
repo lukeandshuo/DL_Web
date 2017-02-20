@@ -16,19 +16,31 @@ import cv2
 from Classification import Classification
 from multiprocessing import Process,Manager
 import tensorflow as tf
-#add face verification path
-sys.path.append("/home/shuoliu/Research/TF/FaceVerification/openface/demos")
-from verification import FaceVerification
 
-#add object detection path
-sys.path.append("/home/shuoliu/Research/TF/ObjectDetection/")
+local = True
+if local:
+    #add face verification path
+    sys.path.append("/home/shuoliu/Research/TF/FaceVerification/openface/demos")
+    #add object detection path
+    sys.path.append("/home/shuoliu/Research/TF/ObjectDetection/")
+    #add image caption path
+    sys.path.append("/home/shuoliu/Research/TF/ImageCaption/")
+else:
+    #add face verification path
+    sys.path.append("/home/shuoliu/TF/FaceVerification/demos")
+    #add object detection path
+    sys.path.append("/home/shuoliu/TF/ObjectDetection/")
+    #add image caption path
+    sys.path.append("/home/shuoliu/TF/ImageCaption/")
+
+from verification import FaceVerification
 from ObjectDetection import ObjectDetection
-sys.path.append("")
+from ImgCaption import ImgCaption
 REPO_DIRNAME = os.path.dirname(__file__)
 UPLOAD_FOLDER = os.path.join(REPO_DIRNAME,'tmp/caffe_demos_uploads')
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-ALLOWED_IMAGE_EXTENSIONS = set(['png',  'jpg', 'jpeg'])
+ALLOWED_IMAGE_EXTENSIONS = set([ 'jpg', 'jpeg'])
 
 # Obtain the flask app object
 app = flask.Flask(__name__)
@@ -190,21 +202,62 @@ def od_url():
         drawImg = ret['drawImg']
     print result
     return flask.render_template(
-        'index.html', has_result=True, result=result, drawImg=embed_cv_image_html(drawImg), section="OD")
+        'index.html', has_result=True, result=result, drawImg=embed_cv_image_html(drawImg,512),h = 512, section="OD")
+
+
+@app.route('/caption_url', methods=['GET'])
+def caption_url():
+    imageurl = flask.request.args.get('imageurl', '')
+    try:
+        string_buffer =urllib.urlopen(imageurl).read()
+        ext = os.path.splitext(imageurl)[1].strip('.')
+        if ext not in ALLOWED_IMAGE_EXTENSIONS:
+            print "error extension!"
+            raise ValueError
+        img = url_to_img(string_buffer)
+        if img == None:
+            raise ValueError("error image")
+        filename_ = str(datetime.datetime.now()).replace(' ', '_') + "img.jpg"
+        filename = os.path.join(UPLOAD_FOLDER, filename_)
+        cv2.imwrite(filename,img)
+
+    except Exception as err:
+        # For any exception we encounter in reading the image, we will just
+        # not continue.
+        logging.info('URL Image open error: %s', err)
+        return flask.render_template(
+            'index.html', has_result=True,
+            result=(False, 'Cannot open image from URL.','change another one')
+            ,section="Caption"
+        )
+
+    logging.info('Image: %s', imageurl)
+    # using multiprocessing to avoid out of memory on GPU
+    with Manager() as manager:
+        ret = manager.dict()
+        p = Process(target=app.caption.image_caption,args=(filename,ret))
+        p.start()
+        p.join()
+        result = ret['result']
+    print "url",result
+    return flask.render_template(
+        'index.html', has_result=True, result=result, imagesrc=imageurl, section="Caption")
 
 def url_to_img(url_buffer):
     image = np.asarray(bytearray(url_buffer),dtype="uint8")
     image = cv2.imdecode(image,cv2.IMREAD_COLOR)
     return image
 
-def embed_cv_image_html(img):
+def embed_cv_image_html(img,size =256):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     image_pil = Image.fromarray(img)
-    image_pil = image_pil.resize((256, 256))
+    image_pil = image_pil.resize((size, size))
     string_buf = StringIO.StringIO()
     image_pil.save(string_buf, format='png')
     data = string_buf.getvalue().encode('base64').replace('\n', '')
     return 'data:image/png;base64,' + data
+
+
 
 def embed_image_html(imagename):
     """Creates an image embedded in HTML base64 format."""
@@ -254,6 +307,9 @@ def start_from_terminal(app):
     app.clf = Classification()
     app.face = FaceVerification()
     app.od = ObjectDetection()
+    app.caption = ImgCaption()
+
+
 
     # cv2.imshow("luke",img)
     # cv2.waitKey(0)
